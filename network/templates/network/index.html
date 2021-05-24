@@ -1,0 +1,31 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="d-flex flex-column">
+    <h2>All Posts</h3>
+    <!-- add post -->
+    {% if user.is_authenticated %}
+        <div class="card p-4 m-2 col-lg-3 col-md-4 col-sm-12">
+        <h3>Add Post</h3>
+            <form action="{% url 'add_post' %}" method="post">
+                <div class="form-group">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="submit" value="Post">
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- all posts -->
+    {% for post in posts %}
+        <div class='card p-4 m-2 col-lg-3 col-md-4 col-sm-12'>
+         <div class="card-body" onclick='location.href="{% url 'post' post.id %}"'>
+            <h4 class='card-title'>{{ post.user }}</h4>
+            <p class='card-text'>{{ post.content }}</p>
+            <p class='card-subtitle mb-2 text-muted'>{{ post.created }}</p>
+         </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
