@@ -1,0 +1,13 @@
+{% for post in posts %}
+    <div class='card p-3'>
+    <div class="card-body">
+        <a href="{% url 'get_user' post.user.id %}">
+            <h4 class='card-title'>{{ post.user }}</h4>
+        </a>
+        <p class='card-text'>{{ post.content }}</p>
+        <p class='card-subtitle mb-2 text-muted'>{{ post.created }}</p>
+        <button class='btn btn-danger'>Like</button>
+        <button class='btn btn-primary'>Comment</button>
+    </div>
+    </div>
+{% endfor %}

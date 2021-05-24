@@ -15,7 +15,7 @@ def index(request):
 
     # render new post form
     form = PostForm()
-    
+
     return render(request, "network/index.html", {'posts': posts, 'form': form})
 
 
@@ -90,3 +90,28 @@ def add_post(request):
 
     return HttpResponseRedirect(reverse("index"))
     
+
+def get_user(request, user_id):
+    user = User.objects.get(id=user_id)
+
+    print(request.user)
+    print(user)
+    
+    # no. of followers
+    followers = user.followers.all()
+    following = user.following.all()
+
+    n_followers = len(followers)
+    n_following = len(following)
+
+    # posts
+    posts = user.posts.all()
+
+    # check if current user can follow user_id
+    if (request.user in followers) or (request.user==user):
+        follow_btn = False
+    else:
+        follow_btn = True
+
+    return render(request, "network/user.html", {'user': user, 'n_followers': n_followers, 
+    'n_following': n_following, 'posts': posts, 'follow_btn': follow_btn})

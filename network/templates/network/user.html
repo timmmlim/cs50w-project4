@@ -1,0 +1,27 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class='card-columns'>
+    <div class='card p-4 m-2'>
+        <div class='card-body'>
+            <h3 class='card-title'>@{{ user.username }}</h3>
+            
+            {% if follow_btn %}
+                <buton class='btn btn-secondary'>Follow</button>
+            {% else %}
+                <button class='btn btn-secondary'>Unfollow</button>
+            {% endif %}
+
+            <p>{{ n_followers }} Followers</p>
+            <p>{{ n_following}} Following</p>
+            <p>{{ posts.count }} Posts</p>
+        </div>
+    </div>
+    
+    <div class='card'>
+        <h4 class='card-title'>Posts</h4>
+        {% include "network/posts.html" %}    
+    </div>
+    </div>
+
+{% endblock %}
