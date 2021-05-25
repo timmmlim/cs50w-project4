@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import F
 
 from .models import User, Post, UserFollowing
 from .forms import PostForm
@@ -19,6 +20,26 @@ def index(request):
 
     return render(request, "network/index.html", {'posts': posts, 'form': form})
 
+def following(request):
+    '''
+    similar to index, but returns the posts from users currently followed
+    '''
+    
+    if request.user.is_authenticated:
+        # get the users being followed by request.user
+        following = [userfollowing.following_user_id for userfollowing in request.user.following.all()]
+        following.append(request.user)
+
+        # get the relevant posts
+        posts = Post.objects.filter(user__in=following)
+
+        # render new post form
+        form = PostForm()
+
+        return render(request, 'network/index.html', {'posts': posts, 'form': form})
+
+    else:
+        return HttpResponseRedirect(reverse('login'))
 
 def login_view(request):
     if request.method == "POST":
