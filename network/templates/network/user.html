@@ -6,10 +6,14 @@
         <div class='card-body'>
             <h3 class='card-title'>@{{ user.username }}</h3>
             
-            {% if follow_btn %}
-                <buton class='btn btn-secondary'>Follow</button>
-            {% else %}
-                <button class='btn btn-secondary'>Unfollow</button>
+            {% if not is_self %}
+                <form method='POST' action="{% url 'follow_user' user.id %}">
+                {% csrf_token %}
+                {% if follow_btn %}
+                    <input class='btn btn-secondary' type='submit' value='Follow' />
+                {% else %}
+                    <input class='btn btn-secondary' type='submit' value='Unfollow' />
+                {% endif %}
             {% endif %}
 
             <p>{{ n_followers }} Followers</p>

@@ -4,8 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
-from .models import User, Post
+from .models import User, Post, UserFollowing
 from .forms import PostForm
 
 def index(request):
@@ -108,10 +109,40 @@ def get_user(request, user_id):
     posts = user.posts.all()
 
     # check if current user can follow user_id
-    if (request.user in followers) or (request.user==user):
+    try:
+        followers.get(user_id=request.user)
         follow_btn = False
-    else:
+
+    except ObjectDoesNotExist:
         follow_btn = True
 
+    # check if user is self
+    if request.user == user:
+        is_self = True
+    else:
+        is_self = False
+
     return render(request, "network/user.html", {'user': user, 'n_followers': n_followers, 
-    'n_following': n_following, 'posts': posts, 'follow_btn': follow_btn})
+    'n_following': n_following, 'posts': posts, 'follow_btn': follow_btn, 'is_self': is_self})
+
+
+def follow_user(request, user_id):
+    if request.user.is_authenticated:
+        target_user = User.objects.get(id=user_id)
+        followers = target_user.followers.all()
+
+        # unfollow
+        try:
+            curr_record = followers.get(user_id=request.user)
+            curr_record.delete()
+
+        # follow
+        except ObjectDoesNotExist:
+            user_following = UserFollowing(user_id=request.user, following_user_id=target_user)
+            user_following.save()
+
+        return HttpResponseRedirect(reverse("get_user", kwargs={"user_id": user_id}))
+
+    # if not logged in, redirect to login page
+    else:
+        return HttpResponseRedirect(reverse("login"))
