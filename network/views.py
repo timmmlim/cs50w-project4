@@ -10,15 +10,17 @@ from django.core.paginator import Paginator
 from .models import User, Post, UserFollowing
 from .forms import PostForm
 
+# global variables
+n_posts = 10
+
 def index(request):
 
     # get all posts
     posts = Post.objects.all()
 
-    # limit to 10 posts per page
-    n_posts = 10
+    # limit to n_posts per page
     paginator = Paginator(posts, n_posts)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
     # render new post form
@@ -38,11 +40,14 @@ def following(request):
 
         # get the relevant posts
         posts = Post.objects.filter(user__in=following)
+        paginator = Paginator(posts, n_posts)
+        page_number = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_number)
 
         # render new post form
         form = PostForm()
 
-        return render(request, 'network/index.html', {'posts': posts, 'form': form})
+        return render(request, 'network/index.html', {'page_obj': page_obj, 'form': form})
 
     else:
         return HttpResponseRedirect(reverse('login'))
