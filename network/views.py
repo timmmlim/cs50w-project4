@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import F
+from django.core.paginator import Paginator
 
 from .models import User, Post, UserFollowing
 from .forms import PostForm
@@ -15,10 +15,16 @@ def index(request):
     # get all posts
     posts = Post.objects.all()
 
+    # limit to 10 posts per page
+    n_posts = 10
+    paginator = Paginator(posts, n_posts)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # render new post form
     form = PostForm()
 
-    return render(request, "network/index.html", {'posts': posts, 'form': form})
+    return render(request, "network/index.html", {'page_obj': page_obj, 'form': form})
 
 def following(request):
     '''
