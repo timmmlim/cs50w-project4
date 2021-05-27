@@ -1,11 +1,13 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt 
 
 from .models import User, Post, UserFollowing
 from .forms import PostForm
@@ -103,11 +105,33 @@ def register(request):
     else:
         return render(request, "network/register.html")
 
+@csrf_exempt
 def post(request, post_id):
     '''
-    renders specific view for individual posts
+    query for specific post
     '''
-    pass
+
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": 'Post not found.'}, status=404)
+    
+    # return post contents
+    if request.method == 'GET':
+        return JsonResponse(post.serialize())
+    
+    # edit post contents
+    elif request.method == 'PUT':
+        data = json.loads(request.body)
+        post.content = data['content']
+        post.save()
+        return HttpResponse(status=204)
+
+    else:
+        return JsonResponse({
+            'error': 'GET or PUT request required'
+        }, status=400)
+
 
 def add_post(request):
     form = PostForm(request.POST or None)

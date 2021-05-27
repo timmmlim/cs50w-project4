@@ -10,12 +10,25 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField(max_length=120)
     created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
 
         # sorted in descending order, newer posts are returned first
         ordering = ["-created"]
 
+
+    def serialize(self):
+        return {
+            'user': self.user.id,
+            'content': self.content
+        }
+
+    def __str__(self):
+        if self.created == self.modified:
+            return f'{self.user} posted {self.content}, on {self.created}'
+        else:
+            return f'{self.user} posted {self.content}, modified on {self.modified}'
 
 class Like(models.Model):
 

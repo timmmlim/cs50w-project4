@@ -1,16 +1,32 @@
 <!-- posts -->
 {% for post in page_obj %}
     <div class='card p-3'>
-    <div class="card-body">
-        <a href="{% url 'get_user' post.user.id %}">
-            <h4 class='card-title'>{{ post.user }}</h4>
-        </a>
-        <p class='card-text'>{{ post.content }}</p>
-        <p class='card-subtitle mb-2 text-muted'>{{ post.created }}</p>
-        <button class='btn btn-danger'>Like</button>
-        <button class='btn btn-primary'>Comment</button>
-    </div>
-    </div>
+        <div class="card-body">
+            <a href="{% url 'get_user' post.user.id %}">
+                <h4 class='card-title'>{{ post.user }}</h4>
+            </a>
+            <p class='card-text'>{{ post.content }}</p>
+            {% if post.created == post.modified %}
+                <p class='card-subtitle mb-2 text-muted'>Created at: {{ post.created }}</p>
+            {% else %}
+                <p class='card-subtitle mb-2 text-muted'>Modified at: {{ post.modified }}</p>
+            {% endif %}
+            <button class='btn btn-danger'>Like</button>
+            <button class='btn btn-primary'>Comment</button>
+            {% if post.user == request.user %}
+                <button id='edit' class='btn btn-secondary' data-post={{ post.id }}>Edit</button>
+            {% endif %}
+        </div>
+
+    <!-- compose view -->
+        <div id='compose-view'>
+            <form id='compose-form'>
+                <h4 class='card-title'>{{ post.user }}</h4>
+                <textarea class='form-control' id='compose-body'>{{ post.content }}</textarea>
+                <input type='submit' class='btn btn-secondary' id='submit-btn'/>
+            </form>
+        </div>
+    </div> 
 {% endfor %}
 
 <!-- page navigation -->
@@ -51,3 +67,8 @@
     </ul>
     {% endif %}
 </nav>
+
+{% load static %}
+{% block script %}
+    <script src='{% static "network/posts.js" %}'></script>
+{% endblock %}
