@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt 
 
-from .models import User, Post, UserFollowing
+from .models import User, Post, Like, UserFollowing
 from .forms import PostForm
 
 # global variables
@@ -118,7 +118,9 @@ def post(request, post_id):
     
     # return post contents
     if request.method == 'GET':
-        return JsonResponse(post.serialize())
+        result = post.serialize()
+        result['likes'] = post.likes.count()
+        return JsonResponse(result)
     
     # edit post contents
     elif request.method == 'PUT':
@@ -202,3 +204,23 @@ def follow_user(request, user_id):
     # if not logged in, redirect to login page
     else:
         return HttpResponseRedirect(reverse("login"))
+
+@csrf_exempt
+def like_post(request, post_id):
+    '''
+    create entry in Like table
+    '''
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(id=post_id)
+            like = Like.objects.get(post=post, user=request.user)
+        except Like.DoesNotExist:
+            # if does not exist, create new entry
+            like = Like.objects.create(post=post, user=request.user)
+            like.save()
+            return HttpResponse(status=204)
+    return HttpResponseRedirect(reverse('index'))
+
+
+
+

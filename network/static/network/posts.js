@@ -3,7 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
         button.onclick = function(){
             edit_post(this)
         }
-    })
+    });
+
+    document.querySelectorAll("#undo").forEach(button =>{
+        button.onclick = function(){
+            undo(this)
+        }
+    });
+
+    document.querySelectorAll('#like').forEach(button => {
+        button.onclick = function(){
+            like(this)
+        }
+    });
 
     // hide the forms
     document.querySelectorAll('#compose-view').forEach(element => {
@@ -41,4 +53,34 @@ function edit_post(element) {
                 console.log(response)
         })
     })    
+}
+
+// method to hide the form and show the original post
+function undo(element){
+    
+    const form = element.parentElement;
+    const compose_view = form.parentElement;
+    const post_view = compose_view.parentElement.querySelector('#post-view');
+
+    post_view.style.display = 'block';
+    compose_view.style.display = 'none';
+}
+
+// method to check for the like count
+function like(element){
+
+    const post_id = element.dataset.post
+
+    // send the like to the server
+    fetch(`/like/${post_id}`, {method: 'POST'})
+    .then(response => {
+        console.log(response)
+        return fetch(`/post/${post_id}`)
+    })
+    .then(response => response.json())
+    .then(result => {
+        // update the like count
+        const post_view = element.parentElement;
+        post_view.querySelector('#like-count').innerHTML = `&#10084;&#65039; ${result.likes}`
+    })
 }

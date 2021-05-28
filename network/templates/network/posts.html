@@ -1,20 +1,24 @@
 <!-- posts -->
 {% for post in page_obj %}
     <div class='card p-3'>
-        <div class="card-body">
+        <div class="card-body" id='post-view'>
             <a href="{% url 'get_user' post.user.id %}">
                 <h4 class='card-title'>{{ post.user }}</h4>
             </a>
             <p class='card-text'>{{ post.content }}</p>
+            <p class='card-subtitle mb-2 text-muted' id='like-count'>&#10084;&#65039; {{ post.likes.count }}</p>
+
+            <!-- post timestamp -->
             {% if post.created == post.modified %}
                 <p class='card-subtitle mb-2 text-muted'>Created at: {{ post.created }}</p>
             {% else %}
                 <p class='card-subtitle mb-2 text-muted'>Modified at: {{ post.modified }}</p>
             {% endif %}
-            <button class='btn btn-danger'>Like</button>
-            <button class='btn btn-primary'>Comment</button>
+
+            <!-- buttons -->
+            <label class='btn btn-danger' id='like' type='button' data-post={{ post.id }}>Like</label>
             {% if post.user == request.user %}
-                <button id='edit' class='btn btn-secondary' data-post={{ post.id }}>Edit</button>
+                <label id='edit' class='btn btn-primary' data-post={{ post.id }}>Edit</label>
             {% endif %}
         </div>
 
@@ -24,6 +28,7 @@
                 <h4 class='card-title'>{{ post.user }}</h4>
                 <textarea class='form-control' id='compose-body'>{{ post.content }}</textarea>
                 <input type='submit' class='btn btn-secondary' id='submit-btn'/>
+                <button type='button' id='undo' class='btn btn-secondary'>Undo</button>
             </form>
         </div>
     </div> 
